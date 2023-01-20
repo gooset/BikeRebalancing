@@ -1,30 +1,28 @@
 using Random
 
 struct Station
-    i::Int # indice of a station
+    i::Int # index of a station
     x::Int # x coordinate of the station
     y::Int # y coordinate of the station
-    nbp::Int # number of bike present in the station
+    nbp::Int # number of bikes present in the station
     capa::Int # station capacity
-    ideal::Int # the ideal bike in the station
+    ideal::Int # the ideal number of bikes in the station
 end
 
 function parse_file(filename::String)
-"""
-    Function to get the input from a file. It takes the path \
-    of the file as an input and save the capacity K of the trailer, \
-    the coordinate of the warehouse and the datas of station in an array
-    of Station
     """
-
+    Function to get the input from a file. It takes the path of the file as an input and saves the capacity K of the trailer,
+    the coordinates of the warehouse, and the data of the stations in an array of Station.
+    """
     sts = Station[]
     f = open(filename, "r")
-    k=0; ware=(0,0)
+    k = 0
+    ware = (0, 0)
     for l in readlines(f, keep=true)
         if startswith(l, "K")
             k = parse(Int, split(l)[2])
         elseif startswith(l, r"stations|name|#")
-            continue 
+            continue
         elseif startswith(l, "warehouse")
             c = split(l, " ")
             wx, wy = parse(Int, c[2]), parse(Int, c[3])
@@ -40,43 +38,40 @@ function parse_file(filename::String)
             push!(sts, Station(i, x, y, nbp, capa, ideal))
         end
     end
+    close(f)  # Close the file after reading
     return length(sts), sts, ware, k
 end
-
 
 n, sts, ware, K = parse_file("/home/user/instances/tsdp_9_s500_k14.dat")
 
 function dists_to_ware(ware::Tuple{Int, Int}, sts::Vector{Station})
-    """ 
-    Get the distance to the warehouse for all stations 
+    """
+    Get the distance to the warehouse for all stations.
     """
     [round(sqrt((s.x - ware[1])^2 + (s.y - ware[2])^2)) for s in sts]
 end
 
-
 function dist_stations(sts::Vector{Station})
     """
-    Get the distance between each pair of stations
+    Get the distance between each pair of stations.
     """
     n = length(sts)
     d = [round(sqrt((s1.x - s2.x)^2 + (s1.y - s2.y)^2)) for s1 in sts, s2 in sts]
     reshape(d, n, n)
 end
 
-
 function get_imbs(sts::Vector{Station})
     """
-    Get imbalances of each station
+    Get imbalances of each station.
     """
     [s.nbp - s.ideal for s in sts]
 end
 
-
 function get_cost(path::Vector{Int}, dists::Matrix{Float64}, dware::Vector{Float64}, imbs::Vector{Int})
     """
-    Determine costs for each route
+    Determine costs for each route.
     The cost is calculated by adding the cost of the distance traveled
-    plus the absolute value of all imbalances, multiplied by a weight
+    plus the absolute value of all imbalances, multiplied by a weight.
     """
     n = length(path)
     w = 10000
@@ -86,7 +81,6 @@ function get_cost(path::Vector{Int}, dists::Matrix{Float64}, dware::Vector{Float
     end
     return w * sum(abs.(imbs)) + cost_dist
 end
-
 
 function shuffle_path(path::Vector{Int}, ni::Int)
     """
@@ -113,7 +107,7 @@ function shuffle_path(path::Vector{Int}, ni::Int)
     ids_shuffle = shuffle(1:length(new_path))
 
     # Split the indices into two halves
-    l, r = ids_shuffle[1:ni], ids_shuffle[ni + 1 : ni + ni]
+    l, r = ids_shuffle[1:ni], ids_shuffle[ni + 1:2ni]
 
     # Shuffle the elements within the specified range
     for (i, j) in zip(l, r)
@@ -123,5 +117,6 @@ function shuffle_path(path::Vector{Int}, ni::Int)
     # Return the shuffled path
     return new_path
 end
+
 
 
