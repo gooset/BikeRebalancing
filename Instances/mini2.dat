@@ -1,0 +1,10 @@
+name mini_2
+K 2
+stations
+# id x y nbp capa ideal
+1 82 9 8 11 8
+2 69 79 3 9 7
+3 71 9 10 10 7
+4 64 93 2 6 4
+5 65 13 5 7 5
+warehouse 50 50
